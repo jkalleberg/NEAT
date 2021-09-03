@@ -54,7 +54,7 @@ def main():
     VCF_DEFAULT_POP_FREQ = 0.00001
 
     parser = argparse.ArgumentParser(description='gen_mut_model.py',
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter,)
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-r', type=str, required=True, metavar='/path/to/reference.fasta',
                         help="Reference file for organism in fasta format")
     parser.add_argument('-m', type=str, required=True, metavar='/path/to/mutations.vcf',

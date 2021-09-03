@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-# encoding: utf-8
 
-# Python 3 ready
 
 """
+encoding: utf-8
 
 vcf_compare.py
 
@@ -26,32 +25,40 @@ import warnings
 from Bio.Seq import Seq
 
 
-def func_parser(VERS):
-    parser = argparse.ArgumentParser('vcf_compare.py',
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-v', '--version', action='version', version=f'%(prog)s {VERS}')
-    parser.add_argument('-r', help='* Reference Fasta', dest='ref', action='store', metavar='<ref.fa>')
-    parser.add_argument('-g', help='* Golden VCF', dest='golden_vcf', action='store', metavar='<golden.vcf>')
-    parser.add_argument('-w', help='* Workflow VCF', dest='workflow_vcf', action='store', metavar='<workflow.vcf>')
-    parser.add_argument('-o', help='* Output Prefix', dest='outfile', action='store', metavar='<prefix>')
-    parser.add_argument('-m', help='Mappability Track', dest='map_track', action='store', metavar='<track.bed>')
-    parser.add_argument('-M', help='Maptrack Min Len', dest='map_track_min_len', action='store', metavar='<int>')
-    parser.add_argument('-t', help='Targetted Regions', dest='target_reg', action='store', metavar='<regions.bed>')
-    parser.add_argument('-T', help='Min Region Len', dest='min_reg_len', action='store', metavar='<int>')
-    parser.add_argument('-c', help='Coverage Filter Threshold', dest='dp_thresh', default=15, action='store',
+def func_parser(version):
+    parser = argparse.ArgumentParser(description='vcf_compare.py',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-v', '--version', action='version', version=f'%(prog)s {version}')
+    parser.add_argument('-r', required=True, help='Reference Fasta', dest='ref', action='store', metavar='<ref.fa>')
+    parser.add_argument('-g', required=True, help='Golden VCF', dest='golden_vcf',
+                        action='store', metavar='<golden.vcf>')
+    parser.add_argument('-w', required=True, help='Workflow VCF', dest='workflow_vcf',
+                        action='store', metavar='<workflow.vcf>')
+    parser.add_argument('-o', required=True, help='Output Prefix', dest='outfile',
+                        action='store', metavar='<prefix>')
+    parser.add_argument('-m', required=False, help='Mappability Track', dest='map_track',
+                        action='store', metavar='<track.bed>')
+    parser.add_argument('-M', required=False, help='Maptrack Min Len', dest='map_track_min_len',
+                        action='store', metavar='<int>')
+    parser.add_argument('-t', required=False, help='Targetted Regions', dest='target_reg',
+                        action='store', metavar='<regions.bed>')
+    parser.add_argument('-T', required=False, help='Min Region Len', dest='min_reg_len',
+                        action='store', metavar='<int>')
+    parser.add_argument('-c', required=False, help='Coverage Filter Threshold',
+                        dest='dp_thresh', default=15, action='store',
                         metavar='<int>')
-    parser.add_argument('-a', help='Allele Freq Filter Threshold', dest='af_thresh', default=0.3, action='store',
-                        metavar='<float>')
-
-    parser.add_argument('--vcf-out', help="Output Match/FN/FP variants", dest='vcf_out', default=False,
+    parser.add_argument('-a', required=False, help='Allele Freq Filter Threshold', dest='af_thresh', default=0.3,
+                        action='store', metavar='<float>')
+    parser.add_argument('--vcf-out', required=False, help="Output Match/FN/FP variants", dest='vcf_out', default=False,
                         action='store_true')
-    parser.add_argument('--no-plot', help="No plotting", dest='no_plot', default=False, action='store_true')
-    parser.add_argument('--incl-homs', help="Include homozygous ref calls", dest='include_homs', default=False,
+    parser.add_argument('--no-plot', required=False, help="No plotting", dest='no_plot', default=False,
                         action='store_true')
-    parser.add_argument('--incl-fail', help="Include calls that failed filters", dest='include_fail',
+    parser.add_argument('--incl-homs', required=False, help="Include homozygous ref calls",
+                        dest='include_homs', default=False, action='store_true')
+    parser.add_argument('--incl-fail', required=False, help="Include calls that failed filters", dest='include_fail',
                         default=False,
                         action='store_true')
-    parser.add_argument('--fast', help="No equivalent variant detection", dest='fast', default=False,
+    parser.add_argument('--fast', required=False, help="No equivalent variant detection", dest='fast', default=False,
                         action='store_true')
 
     args = parser.parse_args()
@@ -73,9 +80,14 @@ def index_ref(n_lines, f, ref_inds, prev_r, prev_p):
                 ref_inds.append((prev_r, prev_p, f.tell() - len(data)))
             prev_p = f.tell()
             prev_r = data[1:-1]
-        
-def read_mappability_track(maptrack, n, min_read_len):
-    mappability_tracks = {}  # indexed by chr string (e.g. 'chr1'), has boolean array
+
+
+def read_mappability_track(maptrack, min_read_len):
+    """
+    reads in mappability bed
+    """
+    # indexed by chr string (e.g. 'chr1'), has boolean array
+    mappability_tracks = {}
     prev_Ref = ''
     relevant_regions = []
     if maptrack is not None:
@@ -104,10 +116,11 @@ def read_mappability_track(maptrack, n, min_read_len):
                     my_track[ri] = 1
             mappability_tracks[prev_Ref] = [n for n in my_track]
 
+
 def parse_target_regions(bedfile, ref_name, MAX_VAL):
-    #
-    #	Parse relevant targeted regions
-    #
+    """
+    Parse relevant targeted regions
+    """
     targ_regions_fl = []
     if bedfile is not None:
         bedfile = open(bedfile, 'r')
@@ -735,8 +748,8 @@ def main():
     if bedfile is not None:
         print('\nNumber of golden variants located in targeted regions that were too small to be sampled from:', zb_m)
     if fast:
-        print(
-            "\nWarning! Running with '--fast' means that identical variants denoted differently between the two vcfs will not be detected! The values above may be lower than the true accuracy.")
+        print("\nWarning! Running with '--fast' means that identical variants denoted differently between the two vcfs"
+            "will not be detected! The values above may be lower than the true accuracy.")
     # if NO_PLOT:
     if True:
         print('\n#unmappable:  ', len(set1))
