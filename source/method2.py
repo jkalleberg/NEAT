@@ -12,14 +12,14 @@ file = "temp.txt.gz"
 file = pathlib.Path(file).resolve()
 file.touch()
 
-message = "All work and no play makes Homer something something. Go crazy? Don't mind if I do!!"
+message = b"All work and no play makes Homer something something. Go crazy? Don't mind if I do!!"
 
-N = 1000000
+N = 10000000
 with gzip.open(file, 'w') as f:
-    f.write("Hello")
+    f.write(b"Hello")
     for i in range(N):
         f.write(message)
-    f.write("Goodbye")
+    f.write(b"Goodbye")
 
 
 

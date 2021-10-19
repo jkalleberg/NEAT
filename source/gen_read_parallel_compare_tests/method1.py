@@ -14,7 +14,7 @@ file.touch()
 
 message = b"All work and no play makes Homer something something. Go crazy? Don't mind if I do!!"
 
-N = 10000000
+N = 100000000
 with gzip.open(file, 'w') as f:
     f.write(b"Hello")
 for i in range(N):
