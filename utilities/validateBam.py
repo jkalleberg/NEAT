@@ -1,4 +1,4 @@
-git #!/usr/bin/env python
+#!/usr/bin/env python
 
 # Python 3 ready
 

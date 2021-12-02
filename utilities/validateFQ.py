@@ -7,8 +7,10 @@
 #
 # Python 3 ready
 
+import subprocess
+
 def validate_fq(fastq_file):
-    run_seqkit = f"seqkit stats {fastq_file}"
+    subprocess.run(['seqkit', 'stats', f'{fastq_file}'])
 
 # Graduate student's code is below (works correctly):
 
